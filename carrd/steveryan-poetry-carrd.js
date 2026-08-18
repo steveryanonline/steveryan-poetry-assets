@@ -74,7 +74,7 @@
       const copy = home.querySelector(".sr-home-copy");
       setText(copy?.querySelector(".sr-eyebrow"), homeHero.label);
       setText(copy?.querySelector("h1"), homeHero.title);
-      const paragraphs = copy ? [...copy.querySelectorAll(":scope > p")] : [];
+      const paragraphs = copy ? [...copy.querySelectorAll(":scope > p:not(.sr-eyebrow)")] : [];
       homeHero.body?.split("\n\n").forEach((paragraph, index) => setText(paragraphs[index], paragraph));
     }
     const book = sections["featured-book"];
