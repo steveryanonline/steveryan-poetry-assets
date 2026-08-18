@@ -123,8 +123,15 @@
       if (form.dataset.srBound) return;
       form.dataset.srBound = "1";
       const submit = form.querySelector("[data-sr-submit]");
-      const status = form.querySelector("[data-sr-status]");
+      let status = form.querySelector("[data-sr-status]");
       if (!submit) return;
+      if (!status) {
+        status = document.createElement("small");
+        status.dataset.srStatus = "";
+        status.setAttribute("aria-live", "polite");
+        status.style.cssText = "display:block;min-height:1.35em;margin-top:10px;color:#711c24;font:500 12px/1.35 Arial,sans-serif;letter-spacing:.01em";
+        form.append(status);
+      }
       submit.addEventListener("click", () => {
         const values = {};
         let valid = true;
