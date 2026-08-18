@@ -18,13 +18,6 @@
   const setLink = (node, value) => { if (node && safeUrl(value)) node.href = value; };
   const setImage = (node, value) => { if (node && safeUrl(value)) node.src = value; };
 
-  const applyHero = (root, section) => {
-    const hero = root?.querySelector(".sr-inner-hero");
-    if (!hero || !section) return;
-    setText(hero.querySelector(".sr-eyebrow"), section.label);
-    setText(hero.querySelector("h1"), section.title);
-    setText(hero.querySelector("p:not(.sr-eyebrow)"), section.body);
-  };
   const videoCard = (template, video) => {
     const card = template.cloneNode(true);
     const media = card.querySelector(".sr-video-media");
@@ -65,27 +58,9 @@
     list.append(fragment);
   };
   const applyContent = (items) => {
-    const sections = Object.fromEntries(items.filter((item) => item.content_type === "section").map((item) => [item.slug, item]));
     const poems = items.filter((item) => item.content_type === "poem");
     const videos = items.filter((item) => item.content_type === "video");
     const home = document.getElementById("sr-carrd-home");
-    const homeHero = sections["home-hero"];
-    if (home && homeHero) {
-      const copy = home.querySelector(".sr-home-copy");
-      setText(copy?.querySelector(".sr-eyebrow"), homeHero.label);
-      setText(copy?.querySelector("h1"), homeHero.title);
-      const paragraphs = copy ? [...copy.querySelectorAll(":scope > p:not(.sr-eyebrow)")] : [];
-      homeHero.body?.split("\n\n").forEach((paragraph, index) => setText(paragraphs[index], paragraph));
-    }
-    const book = sections["featured-book"];
-    document.querySelectorAll(".sr-book").forEach((card) => {
-      if (!book) return;
-      setText(card.querySelector(".sr-label span"), book.label);
-      setText(card.querySelector("h2"), book.title);
-      setText(card.querySelector("p"), book.body);
-      setImage(card.querySelector("img"), book.media_url);
-      setLink(card.querySelector(".sr-button"), book.link_url);
-    });
     if (poems.length) {
       const feature = home?.querySelector(".sr-feature-poem");
       setText(feature?.querySelector(".sr-label span"), poems[0].label);
@@ -94,16 +69,7 @@
     }
     renderVideos(home, ".sr-feature-videos-row", videos);
     renderVideos(document.getElementById("sr-carrd-videos"), ".sr-videos-grid", videos);
-    applyHero(document.getElementById("sr-carrd-poems"), sections["poems-hero"]);
-    applyHero(document.getElementById("sr-carrd-videos"), sections["videos-hero"]);
-    applyHero(document.getElementById("sr-carrd-about"), sections["about-hero"]);
-    applyHero(document.getElementById("sr-carrd-contact"), sections["contact-hero"]);
     renderPoems(document.getElementById("sr-carrd-poems"), poems);
-    const about = sections["about-hero"];
-    if (about) {
-      document.querySelectorAll("#sr-carrd-about .sr-about-photo img").forEach((image) => setImage(image, about.media_url));
-      document.querySelectorAll("#sr-carrd-about .sr-button").forEach((link) => setLink(link, about.link_url));
-    }
   };
   const bind = (settings) => {
     const embeds = [...document.querySelectorAll(".sr-embed")];
@@ -166,16 +132,11 @@
   };
   const load = async () => {
     try {
-      const response = await fetch(`${supabaseUrl}/rest/v1/content_items?select=content_type,slug,title,label,body,media_url,link_url,sort_order&published=eq.true&order=sort_order.asc`, { headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` } });
+      const response = await fetch(`${supabaseUrl}/rest/v1/content_items?select=content_type,slug,title,label,body,media_url,link_url,sort_order&content_type=in.(poem,video)&published=eq.true&order=sort_order.asc`, { headers: { apikey: publishableKey, Authorization: `Bearer ${publishableKey}` } });
       if (!response.ok) throw new Error("Supabase request failed");
       const items = await response.json();
       applyContent(items);
-      const settings = { ...defaults };
-      items.filter((item) => item.content_type === "setting").forEach((item) => {
-        if (item.slug === "contact-formsubmit" && safeUrl(item.link_url)) settings.formSubmitEndpoint = item.link_url.replace("https://formsubmit.co/", "https://formsubmit.co/ajax/");
-        if (item.slug === "contact-webhook" && safeUrl(item.link_url)) settings.appsScriptWebhook = item.link_url;
-      });
-      return settings;
+      return defaults;
     } catch { return defaults; }
   };
   const start = async () => bind(await load());
