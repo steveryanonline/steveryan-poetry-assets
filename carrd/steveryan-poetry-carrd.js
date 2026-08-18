@@ -110,13 +110,13 @@
     const home = document.getElementById("sr-carrd-home");
     if (home) document.querySelectorAll(".sr-embed:not(#sr-carrd-home) .sr-header").forEach((header) => (header.style.display = "none"));
     document.querySelectorAll("[data-sr-menu]").forEach((button) => {
-      if (button.dataset.srMenu) return;
-      button.dataset.srMenu = "1";
+      if (button.dataset.srMenuBound) return;
+      button.dataset.srMenuBound = "1";
       button.addEventListener("click", () => button.closest(".sr-embed")?.classList.toggle("sr-menu-open"));
     });
     document.querySelectorAll("[data-sr-route]").forEach((link) => {
-      if (link.dataset.srRoute) return;
-      link.dataset.srRoute = "1";
+      if (link.dataset.srRouteBound) return;
+      link.dataset.srRouteBound = "1";
       link.addEventListener("click", () => embeds.forEach((embed) => embed.classList.remove("sr-menu-open")));
     });
     document.querySelectorAll("[data-sr-form]").forEach((form) => {
